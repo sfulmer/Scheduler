@@ -1,0 +1,13 @@
+CREATE TABLE `schedule`.`settingvalue`
+(	`Id` INT UNSIGNED NOT NULL AUTO_INCREMENT
+,	`SettingId` INT UNSIGNED NOT NULL
+,	`Value` VARCHAR(100) NULL
+,	PRIMARY KEY (`Id`)
+,	UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE
+,	UNIQUE INDEX `SettingId_UNIQUE` (`SettingId` ASC) VISIBLE
+,	CONSTRAINT `Settings_Setting`
+	FOREIGN KEY (SettingId)
+		REFERENCES `schedule`.`setting` (Id)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION
+);

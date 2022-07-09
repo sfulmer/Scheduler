@@ -1,0 +1,9 @@
+CREATE TABLE `schedule`.`events`
+(	`id` INT NOT NULL AUTO_INCREMENT
+,	`Title` VARCHAR(50) NULL DEFAULT ' '
+,	`Description` VARCHAR(1000) NOT NULL DEFAULT ' '
+,	`start` DATETIME NOT NULL
+,	`end` DATETIME NOT NULL
+,	`all_day` TINYINT NULL DEFAULT 1
+,	PRIMARY KEY (`id`)
+);
