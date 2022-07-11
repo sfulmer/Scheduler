@@ -133,9 +133,19 @@ var Calendar = (function()
 	
 	function getMonthHeaderRow()
 	{
-		var thPrevMonth = $("<th></th>", {	id:	"thPreviousMonth"	}).html("<<");
-		var thNextMonth = $("<th></th>", {	id:	"thNextMonth"	}).html(">>");
-		
+		var thPrevMonth = $("<th></th>", {	id:	"thPreviousMonth"	})
+							.html("<<")
+							.click(function()
+							{
+								setMonth(getMonth() - 1);
+							});
+		var thNextMonth = $("<th></th>", {	id:	"thNextMonth"	})
+								.html(">>")
+								.click(function()
+								{
+									setMonth(getMonth() + 1);
+								});
+					
 		return($("<tr></tr>").append(thPrevMonth).append(getMonthHeader()).append(thNextMonth));
 	}
 	
