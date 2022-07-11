@@ -4,7 +4,7 @@
 	<artifactId>schedule</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>Schedule</name>
+	<name>Scheduler</name>
 	<description>I have a few schedules to organize between work and my personal life so this way I can synchronize them.</description>
 	
 	<parent>
