@@ -192,6 +192,12 @@ var Calendar = (function()
 		return(getThisMonth().getFullYear());
 	}
 	
+	function redrawCalendarDays()
+	{
+		$("table#inner tbody").remove();
+		$("table#inner").append(getCalendarBody());
+	}
+	
 	function setMonth(iMonth)
 	{
 		const iOldYear = getYear();
@@ -211,6 +217,8 @@ var Calendar = (function()
 		
 		if(iOldYear != getYear())
 			$("#thNow_year").html(getYear());
+			
+			redrawCalendarDays();
 	}
 	
 	function setYear(iYear)
@@ -221,6 +229,8 @@ var Calendar = (function()
 		getThisMonth().setFullYear(iYear);
 		
 		$("#thNow_year").html(iYear);
+		
+		redrawCalendarDays();
 	}
 	
 	return(getOuterTable());

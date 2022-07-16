@@ -1,16 +1,16 @@
 package net.draconia.schedule.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
 
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
@@ -18,158 +18,139 @@ import org.springframework.stereotype.Repository;
 import net.draconia.schedule.beans.Event;
 
 @Repository("eventDAO")
-public class EventDAOImpl extends AbstractDAO<Event> implements EventDAO
+public class EventDAOImpl implements EventDAO
 {
+	private static final Logger logger = LoggerFactory.getLogger(EventDAOImpl.class);
+	
 	@Autowired
-	public EventDAOImpl(final DataSource ds)
+	private EntityManager mObjEntityManager;
+	
+	protected EntityManager getEntityManager()
 	{
-		super(ds);
+		return(mObjEntityManager);
 	}
 	
-	protected List<Event> createListFromResults(final ResultSet rs) throws SQLException
+	public Event getEventById(final long lId) throws EntityNotFoundException
 	{
-		List<Event> lst = new ArrayList<Event>();
+		Event objEvent;
 		
-		while(rs.next())
-			lst.add(createObjectFromResult(rs));
+		try
+			{
+			objEvent = getEntityManager().find(Event.class, lId);
+			}
+		catch(IllegalArgumentException objException)
+			{
+			logger.error("There was a problem obtaining an Event by id " + lId + ".", objException);
+			
+			objEvent = null;
+			}
 		
-		return(lst);
+		if(objEvent == null)
+			throw new EntityNotFoundException("Can't find Event by Id " + lId);
+		
+		return(objEvent);
 	}
 	
-	protected Event createObjectFromResult(final ResultSet rs) throws SQLException
-	{
-		Boolean bAllDay;
-		Date dtEnd, dtStart;
-		Long lId;
-		String sDescription, sTitle;
-		
-		bAllDay = rs.getBoolean("AllDay");
-		
-		if(rs.wasNull())
-			bAllDay = null;
-		
-		sDescription = rs.getString("Description");
-		
-		if(rs.wasNull())
-			sDescription = null;
-		
-		dtEnd = rs.getDate("End");
-		
-		if(rs.wasNull())
-			dtEnd = null;
-		
-		lId = rs.getLong("Id");
-		
-		if(rs.wasNull())
-			lId = null;
-		
-		dtStart = rs.getDate("Start");
-		
-		if(rs.wasNull())
-			dtStart = null;
-		
-		sTitle = rs.getString("Title");
-		
-		if(rs.wasNull())
-			sTitle = null;
-		
-		return(new Event(lId, sTitle, dtStart, dtEnd, bAllDay, sDescription));
-	}
-	
-	protected void createTable(String sSchema, String sTable) throws SQLException
+	public List<Event> getList()
 	{
 		try
 			{
-			Connection conn = getConnection();
-			PreparedStatement stmt = conn.prepareStatement("CREATE TABLE `schedule`.`events` (Id INT NOT NULL AUTO_INCREMENT, Title VARCHAR(50) NULL DEFAULT ' ', Description VARCHAR(1000) NOT NULL DEFAULT ' ', Start DATETIME NOT NULL, End DATETIME NOT NULL, All_Day TINYINT NULL DEFAULT 1, PRIMARY KEY (`id`));");
-			
-			stmt.executeUpdate();
+			return(getEntityManager().createQuery("from Event", Event.class).getResultList());
 			}
-		finally
+		catch(IllegalArgumentException | IllegalStateException | PersistenceException objException)
 			{
-			closeConnection();
+			logger.error("There appears to be a problem getting a list of events", objException);
+			
+			return(new ArrayList<Event>());
 			}
 	}
 	
-	public Event getEventById(final long lId) throws SQLException
+	public void remove(final Event objEvent)
 	{
+		EntityManager objEntityManager = getEntityManager();
+		EntityTransaction objTransaction = objEntityManager.getTransaction();
+		
+		objTransaction.begin();
+		
 		try
 			{
-			Connection conn = getConnection();
-			PreparedStatement stmt = conn.prepareStatement("select Id, Title, Start, End, All_Day, Description from Events where Id = ?;");
-			ResultSet rs = null;
+			objEntityManager.remove(objEvent);
+			objEntityManager.flush();
+			objEntityManager.clear();
 			
-			stmt.setLong(1, lId);
-			
-			rs = stmt.executeQuery();
-			
-			if(rs.next())
-				return(createObjectFromResult(rs));
-			else
-				return(null);
+			objTransaction.commit();
 			}
-		finally
+		catch(IllegalArgumentException | PersistenceException objException)
 			{
-			closeConnection();
+			logger.error("There was a problem removing the event with id " + objException);
+			
+			objTransaction.rollback();
 			}
 	}
 	
-	protected String getTableName()
+	public void removeById(final long lId)
 	{
-		return("Events");
-	}
-	
-	protected Event insert(final Event objToInsert) throws SQLException
-	{
+		EntityManager objEntityManager = getEntityManager();
+		Event objEvent = null;
+		
 		try
 			{
-			Connection conn = getConnection();
-			PreparedStatement stmt = conn.prepareStatement("insert into " + getTableName() + " (Title, Start, End, AllDay, Description) values(?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
+			objEvent = objEntityManager.find(Event.class, lId);
+			}
+		catch(IllegalArgumentException objException)
+			{
+			logger.error("There was a problem obtaining an Event by Id " + lId + " for removal.", objException);
 			
-			stmt.setString(1, objToInsert.getTitle());
-			stmt.setDate(2, new java.sql.Date(objToInsert.getStart().getTime()));
-			stmt.setDate(3, new java.sql.Date(objToInsert.getEnd().getTime()));
-			stmt.setBoolean(4, objToInsert.isAllDay());
-			stmt.setString(5, objToInsert.getDescription());
+			objEvent = null;
+			}
+		
+		if(objEvent != null)
+			{
+			EntityTransaction objTransaction = objEntityManager.getTransaction();
 			
-			if(stmt.executeUpdate() == 1)
+			objTransaction.begin();
+			
+			try
 				{
-				ResultSet rs = stmt.getGeneratedKeys();
+				objEntityManager.remove(objEvent);
+				objEntityManager.flush();
+				objEntityManager.clear();
 				
-				if(rs.next())
-					objToInsert.setId(rs.getLong(1));
-				
-				return(objToInsert);
+				objTransaction.commit();
 				}
-			else
-				return(objToInsert);
-			}
-		finally
-			{
-			closeConnection();
+			catch(IllegalArgumentException | PersistenceException objException)
+				{
+				logger.error("There was an error removing the event with id " + lId, objException);
+				
+				objTransaction.rollback();
+				}
 			}
 	}
 	
-	protected Event update(final Event objToUpdate) throws SQLException
+	public Event save(final Event objEvent)
 	{
+		EntityManager objEntityManager = getEntityManager();
+		EntityTransaction objTransaction = objEntityManager.getTransaction();
+		Session objSession = objEntityManager.unwrap(Session.class);
+		
+		objTransaction.begin();
+		
 		try
 			{
-			Connection conn = getConnection();
-			PreparedStatement stmt = conn.prepareStatement("update " + getTableName() + " set Title = ?, Start = ?, End = ?, All_Day = ?, Description = ? where Id = ?;");
+			objEvent.setId((Long)(objSession.save(objEvent)));
 			
-			stmt.setString(1, objToUpdate.getTitle());
-			stmt.setDate(2, new java.sql.Date(objToUpdate.getStart().getTime()));
-			stmt.setDate(3, new java.sql.Date(objToUpdate.getEnd().getTime()));
-			stmt.setBoolean(4, objToUpdate.isAllDay());
-			stmt.setString(5, objToUpdate.getDescription());
+			objEntityManager.flush();
+			objTransaction.commit();
 			
-			stmt.executeUpdate();
-			
-			return(objToUpdate);
+			return(objEvent);
 			}
-		finally
+		catch(IllegalStateException | PersistenceException objException)
 			{
-			closeConnection();
+			logger.error("There was an error saving event with id " + objEvent.getId(), objException);
+			
+			objTransaction.rollback();
+			
+			return(null);
 			}
 	}
 }
