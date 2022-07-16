@@ -7,7 +7,10 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SpringBootApplication(scanBasePackages = {"net.draconia.schedule.controller"})
+@SpringBootApplication(scanBasePackages =	{	"net.draconia.schedule.beans"
+											,	"net.draconia.schedule.controller"
+											,	"net.draconia.schedule.dao"
+											})
 public class ScheduleApp implements WebMvcConfigurer
 {
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder)
