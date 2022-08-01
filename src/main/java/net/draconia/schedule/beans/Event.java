@@ -1,14 +1,20 @@
-package net.draconia.schedule.beans;
+package net.draconia.scheduler.beans;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 import net.draconia.util.PropertyChangeable;
 
+@Entity(name = "events")
 public class Event extends PropertyChangeable
 {
 	@Column(columnDefinition = "TINYINT NOT NULL DEFAULT 1", insertable = true, name = "AllDay", nullable = false, table = "events", unique = false, updatable = true)
@@ -30,72 +36,242 @@ public class Event extends PropertyChangeable
 	
 	@Column(columnDefinition = "VARCHAR(50) NULL DEFAULT ' '", insertable = true, length = 50, name = "Title", nullable = true, table = "events", unique = false, updatable = true)
 	private String msTitle;
-
-	public Event()
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(columnDefinition = "INT UNSIGNED NOT NULL", insertable = true, name = "typeid", nullable = false, table = "events", unique = false, updatable = true)
+	private Type mObjType;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private User mObjUser;
+	
+	public Event(final User objUser)
 	{
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null, null, objUser);
 	}
 	
-	public Event(final Long lId)
+	public Event(final Long lId, final User objUser)
 	{
-		this(lId, null, null, null, null, null);
+		this(lId, null, null, null, null, objUser);
 	}
 	
-	public Event(final String sTitle)
+	public Event(final User objUser, final Type objType)
 	{
-		this(null, sTitle, null, null, null, null);
+		this(null, null, null, null, null, null, objUser, objType);
 	}
 	
-	public Event(final Long lId, final String sTitle)
+	public Event(final Long lId, final User objUser, final Type objType)
 	{
-		this(lId, sTitle, null, null, null, null);
+		this(lId, null, null, null, null, objUser, objType);
 	}
 	
-	public Event(final String sTitle, final String sDescription)
+	public Event(final String sTitle, final User objUser)
 	{
-		this(null, sTitle, sDescription, null, null, null);
+		this(null, sTitle, null, null, null, null, objUser);
 	}
 	
-	public Event(final Long lId, final String sTitle, final String sDescription)
+	public Event(final Long lId, final String sTitle, final User objUser)
 	{
-		this(lId, sTitle, sDescription, null, null, null);
+		this(lId, sTitle, null, null, null, null, objUser);
 	}
 	
-	public Event(final String sTitle, final String sDescription, final Boolean bAllDay)
+	public Event(final String sTitle, final User objUser, final Type objType)
 	{
-		this(null, sTitle, sDescription, null, null, bAllDay);
+		this(null, sTitle, null, null, null, null, objUser, objType);
 	}
 	
-	public Event(final Long lId, final String sTitle, final String sDescription, final Boolean bAllDay)
+	public Event(final Long lId, final String sTitle, final User objUser, final Type objType)
 	{
-		this(lId, sTitle, sDescription, null, null, bAllDay);
+		this(lId, sTitle, null, null, null, null, objUser, objType);
 	}
 	
-	public Event(final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd)
+	public Event(final String sTitle, final String sDescription, final User objUser)
 	{
-		this(null, sTitle, sDescription, dtStart, dtEnd, null);
+		this(null, sTitle, sDescription, null, null, null, objUser);
 	}
 	
-	public Event(final Long lId, final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd)
+	public Event(final Long lId, final String sTitle, final String sDescription, final User objUser)
 	{
-		this(lId, sTitle, sDescription, dtStart, dtEnd, null);
+		this(lId, sTitle, sDescription, null, objUser);
 	}
 	
-	public Event(final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final Boolean bAllDay)
+	public Event(final String sTitle, final String sDescription, final User objUser, final Type objType)
 	{
-		this(null, sTitle, sDescription, dtStart, dtEnd, bAllDay);
+		this(null, sTitle, sDescription, null, objUser, objType);
 	}
 	
-	public Event(final Long lId, final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final Boolean bAllDay)
+	public Event(final Long lId, final String sTitle, final String sDescription, final User objUser, final Type objType)
 	{
-		setAllDay(bAllDay);
-		setDescription(sDescription);
-		setEndDate(dtEnd);
+		this(lId, sTitle, sDescription, null, objUser, objType);
+	}
+	
+	public Event(final Date dtStart, final Date dtEnd, final User objUser)
+	{
+		this(null, null, null, dtStart, dtEnd, null, objUser);
+	}
+	
+	public Event(final Long lId, final Date dtStart, final Date dtEnd, final User objUser)
+	{
+		this(lId, null, null, dtStart, dtEnd, null, objUser);
+	}
+	
+	public Event(final Date dtStart, final Date dtEnd, final User objUser, final Type objType)
+	{
+		this(null, null, null, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final Long lId, final Date dtStart, final Date dtEnd, final User objUser, final Type objType)
+	{
+		this(lId, null, null, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final Boolean bAllDay, final User objUser)
+	{
+		this(null, null, null, null, null, bAllDay, objUser);
+	}
+	
+	public Event(final Long lId, final Boolean bAllDay, final User objUser)
+	{
+		this(lId, null, null, null, null, bAllDay, objUser);
+	}
+	
+	public Event(final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(null, null, null, null, null, bAllDay, objUser, objType);
+	}
+	
+	public Event(final Long lId, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(lId, null, null, null, null, bAllDay, objUser, objType);
+	}
+	
+	public Event(final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser)
+	{
+		this(null, null, null, dtStart, dtEnd, bAllDay, objUser);
+	}
+	
+	public Event(final Long lId, final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser)
+	{
+		this(lId, null, null, dtStart, dtEnd, bAllDay, objUser);
+	}
+	
+	public Event(final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(null, null, null, dtStart, dtEnd, bAllDay, objUser, objType);
+	}
+	
+	public Event(final Long lId, final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(lId, null, null, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final String sTitle, final Date dtStart, final Date dtEnd, final User objUser)
+	{
+		this(null, sTitle, null, dtStart, dtEnd, null, objUser);
+	}
+	
+	public Event(final Long lId, final String sTitle, final Date dtStart, final Date dtEnd, final User objUser)
+	{
+		this(lId, sTitle, null, dtStart, dtEnd, null, objUser);
+	}
+	
+	public Event(final String sTitle, final Date dtStart, final Date dtEnd, final User objUser, final Type objType)
+	{
+		this(null, sTitle, null, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final Long lId, final String sTitle, final Date dtStart, final Date dtEnd, final User objUser, final Type objType)
+	{
+		this(lId, sTitle, null, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final String sTitle, final Boolean bAllDay, final User objUser)
+	{
+		this(null, sTitle, null, null, null, bAllDay, objUser);
+		
+	}
+	
+	public Event(final Long lId, final String sTitle, final Boolean bAllDay, final User objUser)
+	{
+		this(lId, sTitle, null, null, null, bAllDay, objUser);
+	}
+	
+	public Event(final String sTitle, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(null, sTitle, null, null, null, bAllDay, objUser, objType);
+	}
+	
+	public Event(final Long lId, final String sTitle, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(lId, sTitle, null, null, null, bAllDay, objUser, objType);
+	}
+	
+	public Event(final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final User objUser)
+	{
+		this(null, sTitle, sDescription, dtStart, dtEnd, null, objUser);
+	}
+	
+	public Event(final Long lId, final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final User objUser)
+	{
+		this(lId, sTitle, sDescription, dtStart, dtEnd, null, objUser);
+	}
+	
+	public Event(final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final User objUser, final Type objType)
+	{
+		this(null, sTitle, sDescription, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final Long lId, final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final User objUser, final Type objType)
+	{
+		this(lId, sTitle, sDescription, dtStart, dtEnd, null, objUser, objType);
+	}
+	
+	public Event(final String sTitle, final String sDescription, final Boolean bAllDay, final User objUser)
+	{
+		this(null, sTitle, sDescription, null, null, bAllDay, objUser);
+	}
+	
+	public Event(final Long lId, final String sTitle, final String sDescription, final Boolean bAllDay, final User objUser)
+	{
+		this(lId, sTitle, sDescription, null, null, bAllDay, objUser);
+	}
+	
+	public Event(final String sTitle, final String sDescription, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(null, sTitle, sDescription, null, null, bAllDay, objUser, objType);
+	}
+	
+	public Event(final Long lId, final String sTitle, final String sDescription, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(lId, sTitle, sDescription, null, null, bAllDay, objUser, objType);
+	}
+	
+	public Event(final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser)
+	{
+		this(null, sTitle, sDescription, dtStart, dtEnd, bAllDay, objUser);
+	}
+	
+	public Event(final Long lId, final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser)
+	{
+		this(lId, sTitle, sDescription, dtStart, dtEnd, bAllDay, objUser, null);
+	}
+	
+	public Event(final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser, final Type objType)
+	{
+		this(null, sTitle, sDescription, dtStart, dtEnd, bAllDay, objUser, objType);
+	}
+	
+	public Event(final Long lId, final String sTitle, final String sDescription, final Date dtStart, final Date dtEnd, final Boolean bAllDay, final User objUser, final Type objType)
+	{
 		setId(lId);
-		setStartDate(dtStart);
 		setTitle(sTitle);
+		setDescription(sDescription);
+		setStartDate(dtStart);
+		setEndDate(dtEnd);
+		setAllDay(bAllDay);
+		setUser(objUser);
+		setType(objType);
 	}
-	
+		
 	public String getDescription()
 	{
 		if(msDescription == null)
@@ -128,6 +304,16 @@ public class Event extends PropertyChangeable
 			msTitle = "";
 		
 		return(msTitle);
+	}
+	
+	public Type getType()
+	{
+		return(mObjType);
+	}
+	
+	public User getUser()
+	{
+		return(mObjUser);
 	}
 
 	public Boolean isAllDay()
@@ -208,5 +394,25 @@ public class Event extends PropertyChangeable
 		
 		setChanged();
 		notifyObservers("Title", sOldTitle, getTitle());
+	}
+	
+	public void setType(final Type objType)
+	{
+		final Type objOldType = getType();
+		
+		mObjType = objType;
+		
+		setChanged();
+		notifyObservers("Type", objOldType, getType());
+	}
+	
+	public void setUser(final User objUser)
+	{
+		final User objOldUser = getUser();
+		
+		mObjUser = objUser;
+		
+		setChanged();
+		notifyObservers("User", objOldUser, getUser());
 	}
 }
